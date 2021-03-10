@@ -1,40 +1,35 @@
 from classes import *
 
 
+def split_line(string):
+    return [char for char in string]
+
+
 def read(path):
     with open(path, 'r') as file:
 
-        streets = {}
-        cars = []
-        cars_dict = {}
+        office = []
+        developers = []
+        managers = []
 
-        duration, n_intersec, n_streets, n_cars, bonus = [int(value) for value in file.readline().rstrip().split(' ')]
+        width, height = [int(value) for value in file.readline().strip().split(" ")]
 
-        intersections = [Intersection(i, [], []) for i in range(n_intersec)]
+        for i in range(height):
+            line = split_line(file.readline().strip())
 
-        for i in range(n_streets):
-            row = file.readline().rstrip().split(' ')
-            int_in = int(row[0])
-            int_out = int(row[1])
-            name = row[2]
-            duration = int(row[3])
+            office.append([Cell(available=cell != '#', for_developer=cell == '_', symbol=cell) for cell in line])
 
-            street = Street(name, int_in, int_out, duration)
-            street.cars = []
-            streets[street.name] = street
+        num_developers = int(file.readline())
 
-            intersections[int_in].streets_out.append(street)
-            intersections[int_out].streets_in.append(street)
+        for i in range(num_developers):
+            company, bonus, ns, skills = file.readline().strip().split(" ", maxsplit=3)
+            skills = skills.split(" ")
+            developers.append(Developer(company, int(bonus), skills))
 
-            cars_dict[name] = 0
+        num_managers = int(file.readline())
 
-        for i in range(n_cars):
-            car_streets_names = file.readline().rstrip().split(' ')[1:]
-            car_streets = [streets[sn] for sn in car_streets_names]
-            car = Car(car_streets)
-            cars.append(car)
+        for i in range(num_managers):
+            company, bonus = file.readline().strip().split()
+            managers.append(Manager(company, int(bonus)))
 
-            for s in car_streets:
-                s.cars.append(car)
-
-    return duration, n_intersec, n_streets, n_cars, bonus, streets, cars, intersections
+    return office, developers, managers
