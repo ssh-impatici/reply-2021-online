@@ -8,28 +8,19 @@ def split_line(string):
 def read(path):
     with open(path, 'r') as file:
 
-        office = []
-        developers = []
-        managers = []
+        buildings = []
+        antennas = []
 
         width, height = [int(value) for value in file.readline().strip().split(" ")]
 
-        for i in range(height):
-            line = split_line(file.readline().strip())
+        num_buildings, num_antennas, reward = [int(value) for value in file.readline().strip().split(" ")]
 
-            office.append([Cell(available=cell != '#', for_developer=cell == '_', symbol=cell) for cell in line])
+        for i in range(num_buildings):
+            x, y, latency, speed = [int(value) for value in file.readline().strip().split(" ")]
+            buildings.append(Building(x, y, latency, speed))
 
-        num_developers = int(file.readline())
+        for i in range(num_antennas):
+            antenna_range, speed = [int(value) for value in file.readline().strip().split(" ")]
+            antennas.append(Antenna(i, antenna_range, speed))
 
-        for i in range(num_developers):
-            company, bonus, ns, skills = file.readline().strip().split(" ", maxsplit=3)
-            skills = skills.split(" ")
-            developers.append(Developer(company, int(bonus), skills))
-
-        num_managers = int(file.readline())
-
-        for i in range(num_managers):
-            company, bonus = file.readline().strip().split()
-            managers.append(Manager(company, int(bonus)))
-
-    return office, developers, managers
+    return buildings, antennas, reward
