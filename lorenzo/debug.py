@@ -6,7 +6,7 @@ from write import write
 import numpy as np
 
 path = './input/'
-task = 'data_scenarios_e_sanfrancisco.in'
+task = 'data_scenarios_f_tokyo.in'
 
 print(task)
 start = time.time()
@@ -18,11 +18,9 @@ buildings, antennas, reward, width, height = read(path + task)
 antennas.sort(key=lambda x: x.antenna_range, reverse=False)
 buildings.sort(key=lambda x: x.speed_weight, reverse=True)
 
-window = 10
+window = 20
 
 grid = np.zeros((height, width))
-
-antennas[0].antenna_range = 0
 
 
 def position(antenna, grid, width, height):
@@ -51,21 +49,21 @@ while len(antennas) > window and len(buildings) > window:
     print(len(antennas))
 
     for i in range(len(candidates)):
-        building = buildings[0]
+
+        building = buildings[i]
         candidates[i].x = building.x
         candidates[i].y = building.y
         output.append(candidates[i])
 
         grid = position(candidates[i], grid, width, height)
-        grid[candidates[i].y, candidates[i].x] = 2
         # print(grid)
         # print(candidates[i].antenna_range)
 
-
-        buildings.remove(building)
-
     for antenna in candidates:
         antennas.remove(antenna)
+
+    for building in buildings[:window]:
+        buildings.remove(building)
 
     buildings = [building for building in buildings if grid[building.y, building.x] == 0]
 
@@ -95,3 +93,4 @@ else:
 write('output/' + str(task.split('.')[0]) + '.txt', output)
 
 print(task, str(time.time() - start))
+
