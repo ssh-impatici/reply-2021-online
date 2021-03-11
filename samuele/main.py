@@ -1,6 +1,6 @@
 from multiprocessing import Process
 
-from solver import solver, kmeans, solver2
+from solver import solver, kmeans
 
 if __name__ == '__main__':
 
@@ -14,5 +14,5 @@ if __name__ == '__main__':
     ]
 
     for task in tasks:
-        process = Process(target=solver2, args=([task]))
+        process = Process(target=solver, args=([task]))
         process.start()

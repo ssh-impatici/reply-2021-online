@@ -1,8 +1,7 @@
 import time
 
-from sklearn.cluster import KMeans
 import numpy as np
-import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 
 from read import read
 from write import write
@@ -27,7 +26,6 @@ centroids_y = [int(value[1]) for value in kmeans.cluster_centers_]
 antennas.sort(key=lambda antenna: antenna.speed, reverse=True)
 
 for i in range(len(centroids_x)):
-
     antennas[i].x = centroids_x[i]
     antennas[i].y = centroids_y[i]
     output.append(antennas[i])

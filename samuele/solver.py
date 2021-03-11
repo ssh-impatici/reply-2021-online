@@ -17,53 +17,72 @@ def solver(task):
 
     buildings, antennas, reward, width, height = read(path + task)
 
-    antennas.sort(key=lambda x: x.speed, reverse=True)
-    buildings.sort(key=lambda x: x.speed_weight + x.latency_weight*0.1, reverse = True)
-
-    for i in range(min(len(buildings), len(antennas))):
-        antennas[i].x = buildings[i].x
-        antennas[i].y = buildings[i].y
-        output.append(antennas[i])
-
-    write('output/' + str(task.split('.')[0]) + '.txt', output)
-
-    print(task, str(time.time() - start))
-
-
-def solver2(task):
-    print(task)
-    start = time.time()
-
-    output = []
-
-    buildings, antennas, reward, width, height= read(path + task)
-
-    # TODO Parametri dello score in formula (latency)
-    antennas.sort(key=lambda x: x.speed, reverse=True)
+    antennas.sort(key=lambda x: x.speed * x.antenna_range, reverse=True)
     buildings.sort(key=lambda x: x.speed_weight, reverse=True)
-    # buildings.sort(key=lambda x: x.speed_weight- x.latency_weight*0.002 , reverse=True)
 
-    window = 10  # TODO Sliding
+    window = 15  # TODO Sliding
 
-    # TODO Range
+    grid = np.zeros((height, width))
 
-    grid = np.zeros((height, width ))
+    # Solo per il dataset B
+    if task == 'data_scenarios_b_mumbai.in':
+        antennas.sort(key=lambda x: x.antenna_range, reverse=True)
 
+        coordinate_b = [100, 100, 300, 100, 100, 300, 300, 300]
+
+        for i in range(4):
+            a = antennas[0]
+            a.x = coordinate_b[0]
+            a.y = coordinate_b[1]
+            coordinate_b = coordinate_b[2:]
+            output.append(a)
+            antennas = antennas[1:]
+
+        antennas.sort(key=lambda x: x.speed, reverse=True)
+
+    # Solo per il dataset D
+    if task == 'data_scenarios_d_polynesia.in':
+        X = np.array([[int(building.x), (building.y)] for building in buildings])
+
+        kmeans = KMeans(n_clusters=len(antennas), max_iter=1)
+        kmeans.fit(X)
+
+        centroids_x = [int(value[0]) for value in kmeans.cluster_centers_]
+        centroids_y = [int(value[1]) for value in kmeans.cluster_centers_]
+
+        antennas.sort(key=lambda x: x.antenna_range, reverse=True)
+
+        antennas_grande_range = antennas[:200]
+        antennas = antennas[200:]
+
+        for i in range(len(antennas_grande_range)):
+            a = antennas_grande_range[i]
+            a.x = centroids_x[i]
+            a.y = centroids_y[i]
+            output.append(a)
+
+        for b in buildings:
+            for i in range(len(antennas_grande_range)):
+                if b.x == antennas_grande_range[i].x and b.y == antennas_grande_range[i].y:
+                    buildings.remove(b)
+
+        antennas.sort(key=lambda x: x.speed, reverse=True)
+
+    # Funzione position
     def position(antenna, grid, width, height):
-        r = antenna.antenna_range - 1
+        r = antenna.antenna_range
 
-        for i in range(antenna.antenna_range):
-
+        for i in range(antenna.antenna_range + 1):
             x_min = max(antenna.x - r + i, 0)
-            x_max = min(antenna.x + r + 1 -i, width-1)
+            x_max = min(antenna.x + r + 1 - i, width - 1)
 
-            y_min = min(antenna.y + i, height-1)
+            y_min = min(antenna.y + i, height - 1)
             y_max = max(antenna.y - i, 0)
 
             grid[y_min, x_min:x_max] = 1
             grid[y_max, x_min:x_max] = 1
 
-            #print(antenna.y + i, height)
+            # print(antenna.y + i, height)
 
         return grid
 
@@ -77,7 +96,7 @@ def solver2(task):
             candidates[i].y = building.y
             output.append(candidates[i])
 
-            grid = position(candidates[i],grid, width, height)
+            grid = position(candidates[i], grid, width, height)
 
             buildings.remove(building)
 
@@ -85,7 +104,7 @@ def solver2(task):
             antennas.remove(antenna)
 
         for b in buildings:
-            if grid[b.y][b.x] == 1:
+            if grid[b.y][b.x] != 0:
                 buildings.remove(b)
 
     # Minore di windows
@@ -103,7 +122,7 @@ def solver2(task):
 
     # Antenne rimaste
     if len(antennas) != 0:
-        print('Sono rimaste antenne, ragioniamoci! ' + task)
+        print('Sono rimaste antenne! ' + task)
 
     # Edifici coperti rimasti
     if len(buildings) == 0:
