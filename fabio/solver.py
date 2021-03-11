@@ -9,14 +9,18 @@ path = './input/'
 
 
 def solver(task):
-    start = time.time()
 
-    _ = read(path + task + '.txt')
+    start = time.time()
 
     output = []
 
-    write('./output/' + task + '.txt', output)
+    buildings, antennas, reward = read(path + task)
 
-    score = judge(output)
+    for i in range(min(len(buildings), len(antennas))):
+        antennas[i].x = buildings[i].x
+        antennas[i].y = buildings[i].y
+        output.append(antennas[i])
+
+    write('output/' + str(task.split('.')[0]) + '.txt', output)
 
     print(task, str(time.time() - start))
