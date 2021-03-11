@@ -1,10 +1,12 @@
 import time
 
-path = './data/'
-task = 'a'
+from read import read
+
+path = './input/'
+task = 'a_solar.txt'
 
 start = time.time()
 
-# Debug
+office, developers, managers = read(path + task)
 
 print(task, str(time.time() - start))
