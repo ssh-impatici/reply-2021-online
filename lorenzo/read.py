@@ -1,5 +1,9 @@
 from classes import *
 
+from sklearn.cluster import KMeans
+import numpy as np
+import matplotlib.pyplot as plt
+
 
 def split_line(string):
     return [char for char in string]
