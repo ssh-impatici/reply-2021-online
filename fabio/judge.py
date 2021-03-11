@@ -1,2 +1,2 @@
-def judge(output):
+def judge(building, output):
     return 0

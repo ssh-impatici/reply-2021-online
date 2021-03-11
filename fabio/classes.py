@@ -1,31 +1,17 @@
-class Developer:
+class Building:
 
-    def __init__(self, company, bonus, skills):
-        self.company = company
-        self.bonus = bonus
-        self.skills = skills
-
-
-class Manager:
-
-    def __init__(self, company, bonus):
-        self.company = company
-        self.bonus = bonus
+    def __init__(self, x, y, latency_weight, speed_weight):
+        self.x = x
+        self.y = y
+        self.latency_weight = latency_weight
+        self.speed_weight = speed_weight
 
 
-class Cell:
+class Antenna:
 
-    def __init__(self, available, for_developer, symbol):
-        self.available = available
-        self.for_developer = for_developer
-        self.assigned_to = None
-        self.symbol = symbol
-
-    def __str__(self):
-        return self.symbol
-
-
-
-
-
-
+    def __init__(self, antenna_id, antenna_range, speed):
+        self.antenna_id = antenna_id
+        self.antenna_range = antenna_range
+        self.speed = speed
+        self.x = None
+        self.y = None
