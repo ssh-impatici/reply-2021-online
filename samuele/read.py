@@ -1,5 +1,9 @@
 from classes import *
 
+from sklearn.cluster import KMeans
+import numpy as np
+import matplotlib.pyplot as plt
+
 
 def split_line(string):
     return [char for char in string]
@@ -23,4 +27,4 @@ def read(path):
             antenna_range, speed = [int(value) for value in file.readline().strip().split(" ")]
             antennas.append(Antenna(i, antenna_range, speed))
 
-    return buildings, antennas, reward
+    return buildings, antennas, reward, width, height
