@@ -24,6 +24,7 @@ def solver(task):
     buildings.sort(key=lambda x: x.speed_weight, reverse=True)
 
     for i in range(min(len(buildings), len(antennas))):
+
         antennas[i].x = buildings[i].x
         antennas[i].y = buildings[i].y
         output.append(antennas[i])

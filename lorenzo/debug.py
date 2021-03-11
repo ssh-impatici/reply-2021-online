@@ -1,40 +1,97 @@
 import time
 
-from sklearn.cluster import KMeans
-import numpy as np
-import matplotlib.pyplot as plt
-
 from read import read
 from write import write
 
-path = './input/'
-task = 'data_scenarios_f_tokyo.in'
+import numpy as np
 
+path = './input/'
+task = 'data_scenarios_e_sanfrancisco.in'
+
+print(task)
 start = time.time()
 
 output = []
 
-buildings, antennas, reward = read(path + task)
+buildings, antennas, reward, width, height = read(path + task)
 
-X = np.array([[int(building.x), (building.y)] for building in buildings])
+antennas.sort(key=lambda x: x.antenna_range, reverse=False)
+buildings.sort(key=lambda x: x.speed_weight, reverse=True)
 
-kmeans = KMeans(n_clusters=len(antennas), max_iter=1)
-kmeans.fit(X)
+window = 10
 
-centroids_x = [int(value[0]) for value in kmeans.cluster_centers_]
-centroids_y = [int(value[1]) for value in kmeans.cluster_centers_]
+grid = np.zeros((height, width))
 
-antennas.sort(key=lambda antenna: antenna.speed, reverse=True)
+antennas[0].antenna_range = 0
 
-for i in range(len(centroids_x)):
 
-    antennas[i].x = centroids_x[i]
-    antennas[i].y = centroids_y[i]
-    output.append(antennas[i])
+def position(antenna, grid, width, height):
+    r = antenna.antenna_range
 
-# plt.scatter(X[:, 0], X[:, 1], label='True Position')
-# plt.scatter(kmeans.cluster_centers_[:,0] , kmeans.cluster_centers_[:,1], color='black')
+    for i in range(antenna.antenna_range + 1):
+        x_min = max(antenna.x - r + i, 0)
+        x_max = min(antenna.x + r + 1 - i, width - 1)
 
-write('output/' + 'a.txt', output)
+        y_min = min(antenna.y + i, height - 1)
+        y_max = max(antenna.y - i, 0)
+
+        grid[y_min, x_min:x_max] = 1
+        grid[y_max, x_min:x_max] = 1
+
+        # print(antenna.y + i, height)
+
+    return grid
+
+
+# Maggiore di window
+while len(antennas) > window and len(buildings) > window:
+
+    candidates = antennas[:window]
+
+    print(len(antennas))
+
+    for i in range(len(candidates)):
+        building = buildings[0]
+        candidates[i].x = building.x
+        candidates[i].y = building.y
+        output.append(candidates[i])
+
+        grid = position(candidates[i], grid, width, height)
+        grid[candidates[i].y, candidates[i].x] = 2
+        # print(grid)
+        # print(candidates[i].antenna_range)
+
+
+        buildings.remove(building)
+
+    for antenna in candidates:
+        antennas.remove(antenna)
+
+    buildings = [building for building in buildings if grid[building.y, building.x] == 0]
+
+# Minore di windows
+if len(buildings) != 0 and len(antennas) != 0:
+    while len(buildings) > 0 and len(antennas) > 0:
+        building = buildings[0]
+        antenna = antennas[0]
+
+        antenna.x = building.x
+        antenna.y = building.y
+        output.append(antenna)
+
+        buildings.remove(building)
+        antennas.remove(antenna)
+
+# Antenne rimaste
+if len(antennas) != 0:
+    print('Sono rimaste antenne, ragioniamoci! ' + task)
+
+# Edifici coperti rimasti
+if len(buildings) == 0:
+    print('Tutti gli edifici coperti! ' + task)
+else:
+    print('Non tutti gli edifici coperti! ' + task)
+
+write('output/' + str(task.split('.')[0]) + '.txt', output)
 
 print(task, str(time.time() - start))
